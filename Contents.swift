@@ -29,49 +29,130 @@ class ImageArrayUtility {
         return indexArray
     }
     
-    func createDictionaryToTraverseImageArray(array: [Int], startIndexAt: Int, horzOffset: Int, vertOffset: Int, imageWidth: Int, comb: Int, lineHeight: Int, slope: Int, rangeMax: Int) -> [Int:Int] {
+    func createDictionaryToTraverseImageArray(array: [Int], startIndexAt: Int, direction: Direction, horzOffset: Int, vertOffset: Int, imageWidth: Int, comb: Int, lineHeight: Int, slope: Int, rangeMax: Int) -> [Int:Int] {
         var indexDictionary: [Int:Int] = [:]
         let calculatedRangeMax = (rangeMax / comb) - 1
         for loopIndex in 0...calculatedRangeMax {
-            let key = horzOffset + (vertOffset * imageWidth) + (comb * loopIndex * (lineHeight - slope))
+            var key: Int = 0
+            switch direction {
+            case .positive:
+                key = horzOffset + (vertOffset * imageWidth) + (comb * loopIndex * (lineHeight - slope))
+            case .negative:
+                key = horzOffset + (vertOffset * imageWidth) + (comb * (calculatedRangeMax - loopIndex) * (lineHeight - slope))
+            }
             indexDictionary.updateValue((startIndexAt + loopIndex), forKey: key)
         }
         return indexDictionary
     }
     
+    enum Direction {
+        case positive
+        case negative
+    }
     
 }
 
 func sortDictByValuesToArrayOfKeys(_ dictionary: [Int:Int]) -> [Int] {
     return Array(dictionary.keys).sorted{dictionary[$0]! < dictionary[$1]!}
 }
+let imageWidth = 100
+let imageHeight = 100
 
 let imageArrayUtility = ImageArrayUtility()
 
-let newEmptyArray = imageArrayUtility.createEmptyImageArray(width: 10, height: 10)
+let newEmptyArray = imageArrayUtility.createEmptyImageArray(width: imageWidth, height: imageHeight)
 //print(newEmptyArray)
 
-let comb = 2
+let comb = 13
+var supplementalOffset = 0
+let possibleHorzOffset = (imageWidth - 1) % comb
+print(possibleHorzOffset)
 
-let createTopRowRight = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray, startIndexAt: 0, horzOffset: 0, vertOffset: 0, imageWidth: 10, comb: comb, lineHeight: 1, slope: 0, rangeMax: 10)
+if possibleHorzOffset == 0 {
+    supplementalOffset = possibleHorzOffset
+} else if possibleHorzOffset < (comb-1) {
+    supplementalOffset = possibleHorzOffset + comb
+} else {
+    supplementalOffset = possibleHorzOffset
+}
+print(supplementalOffset)
+
+let createTopRowRight = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray,
+                                                                               startIndexAt: 0,
+                                                                               direction: .positive,
+                                                                               horzOffset: 0,
+                                                                               vertOffset: 0,
+                                                                               imageWidth: imageWidth,
+                                                                               comb: comb,
+                                                                               lineHeight: 1,
+                                                                               slope: 0,
+                                                                               rangeMax: imageWidth)
 print(sortDictByValuesToArrayOfKeys(createTopRowRight))
 
-let createLastColumnDown = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray, startIndexAt: 5, horzOffset: 9, vertOffset: 0, imageWidth: 10, comb: comb, lineHeight: 10, slope: 0, rangeMax: 10)
+let createLastColumnDown = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray,
+                                                                                  startIndexAt: imageWidth,
+                                                                                  direction: .positive,
+                                                                                  horzOffset: imageWidth - 1,
+                                                                                  vertOffset: 0,
+                                                                                  imageWidth: imageWidth,
+                                                                                  comb: comb,
+                                                                                  lineHeight: imageWidth,
+                                                                                  slope: 0,
+                                                                                  rangeMax: imageWidth)
 print(sortDictByValuesToArrayOfKeys(createLastColumnDown))
 
-let createBottomRowLeft = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray, startIndexAt: 10,  horzOffset: 0, vertOffset: 9, imageWidth: 10, comb: comb, lineHeight: 1, slope: 0, rangeMax: 10)
+let createBottomRowLeft = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray,
+                                                                                 startIndexAt: 2 * imageWidth,
+                                                                                 direction: .negative,
+                                                                                 horzOffset: supplementalOffset,
+                                                                                 vertOffset: imageHeight - 1,
+                                                                                 imageWidth: imageWidth,
+                                                                                 comb: comb,
+                                                                                 lineHeight: 1,
+                                                                                 slope: 0,
+                                                                                 rangeMax: imageWidth)
 print(sortDictByValuesToArrayOfKeys(createBottomRowLeft))
 
-let createFirstColumnUp = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray, startIndexAt: 15,  horzOffset: 0, vertOffset: 0, imageWidth: 10, comb: comb, lineHeight: 10, slope: 0, rangeMax: 10)
+let createFirstColumnUp = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray,
+                                                                                 startIndexAt: 3 * imageWidth,
+                                                                                 direction: .negative,
+                                                                                 horzOffset: 0,
+                                                                                 vertOffset: supplementalOffset,
+                                                                                 imageWidth: imageWidth,
+                                                                                 comb: comb,
+                                                                                 lineHeight: imageWidth,
+                                                                                 slope: 0,
+                                                                                 rangeMax: imageWidth)
 print(sortDictByValuesToArrayOfKeys(createFirstColumnUp))
 
-let createNegativeDiagonal = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray, startIndexAt: 20,  horzOffset: 0, vertOffset: 0, imageWidth: 10, comb: comb, lineHeight: 10, slope: -1, rangeMax: 10)
+let createNegativeDiagonal = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray,
+                                                                                    startIndexAt: 4 * imageWidth,
+                                                                                    direction: .positive,
+                                                                                    horzOffset: 0,
+                                                                                    vertOffset: 0,
+                                                                                    imageWidth: imageWidth,
+                                                                                    comb: comb,
+                                                                                    lineHeight: imageWidth,
+                                                                                    slope: -1,
+                                                                                    rangeMax: imageWidth)
 print(sortDictByValuesToArrayOfKeys(createNegativeDiagonal))
 
-let createPositiveDiagonal = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray, startIndexAt: 25,  horzOffset: 9, vertOffset: 0, imageWidth: 10, comb: comb, lineHeight: 10, slope: 1, rangeMax: 10)
+let createPositiveDiagonal = imageArrayUtility.createDictionaryToTraverseImageArray(array: newEmptyArray,
+                                                                                    startIndexAt: 5 * imageWidth,
+                                                                                    direction: .negative,
+                                                                                    horzOffset: 9,
+                                                                                    vertOffset: 0,
+                                                                                    imageWidth: imageWidth,
+                                                                                    comb: comb,
+                                                                                    lineHeight: imageWidth,
+                                                                                    slope: 1,
+                                                                                    rangeMax: imageWidth)
 print(sortDictByValuesToArrayOfKeys(createPositiveDiagonal))
 
-var createdLookupTable = createTopRowRight
+var createdLookupTable: [Int:Int] = [:]
+createdLookupTable.reserveCapacity(200)
+createdLookupTable = createTopRowRight
+
 createdLookupTable.merge(createLastColumnDown) { (current, _) in current }
 createdLookupTable.merge(createBottomRowLeft) { (current, _) in current }
 createdLookupTable.merge(createFirstColumnUp) { (current, _) in current }
@@ -79,7 +160,7 @@ createdLookupTable.merge(createNegativeDiagonal) { (current, _) in current }
 createdLookupTable.merge(createPositiveDiagonal) { (current, _) in current }
 
 print(sortDictByValuesToArrayOfKeys(createdLookupTable))
-
+print(sortDictByValuesToArrayOfKeys(createdLookupTable).count)
 
 let topRow = [0,1,2,3,4,5,6,7,8,9]
 let lastColumn = [9,19,29,39,49,59,69,79,89,99]
